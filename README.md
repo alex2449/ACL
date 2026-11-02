@@ -35,7 +35,7 @@ aclc --emit-c <file.acl>
 ## Example
 
 ```acl
-function main([*]args) returns (int32) {
+function main(args [*]str) returns (int32) {
     print("Hello World");
     return 0;
 }
