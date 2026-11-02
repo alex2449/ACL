@@ -1,0 +1,6 @@
+X(IntegerConstant)
+X(BoolConstant)
+X(CharConstant)
+X(EnumConstant)
+X(NullConstant)
+X(StringConstant)

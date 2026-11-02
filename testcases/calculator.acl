@@ -1,0 +1,329 @@
+import "/usr/local/share/acl/lib/lib.acl";
+
+/* Token */
+
+enum Punctuator {
+    Plus,
+    Minus,
+    Asterisk,
+    Slash,
+    Lparen,
+    Rparen
+};
+
+struct IntegerToken {
+    value int32;
+};
+
+struct PunctuatorToken {
+    value Punctuator;
+};
+
+struct ErrorToken { };
+
+variant Token {
+    IntegerToken,
+    PunctuatorToken,
+    ErrorToken
+};
+
+function (tok *Token) isPunctuator(value Punctuator) returns (bool) {
+    return *tok is PunctuatorToken && tok->(PunctuatorToken).value == value;
+}
+
+function (tok *Token) toUnaryOp() returns (UnaryOp) {
+    if (!(*tok is PunctuatorToken))
+        return UnaryOp.Plus;
+
+    switch (tok->(PunctuatorToken).value) {
+    case Punctuator.Plus:     return UnaryOp.Plus;
+    case Punctuator.Minus:    return UnaryOp.Minus;
+    default:
+        panic("token is not a unary op");
+    }
+}
+
+function (tok *Token) toBinaryOp() returns (BinaryOp) {
+    if (!(*tok is PunctuatorToken))
+        return BinaryOp.Add;
+
+    switch (tok->(PunctuatorToken).value) {
+    case Punctuator.Plus:     return BinaryOp.Add;
+    case Punctuator.Minus:    return BinaryOp.Sub;
+    case Punctuator.Asterisk: return BinaryOp.Mul;
+    case Punctuator.Slash:    return BinaryOp.Div;
+    default:
+        panic("token is not a binary op");
+    }
+}
+
+
+/* Lexer */
+
+function isWhiteSpace(c char) returns (bool) {
+    return c == ' ' || c == '\t' || c == '\n' || c == '\r';
+}
+
+function isDigit(c char) returns (bool) {
+    return '0' <= c && c <= '9';
+}
+
+struct Lexer {
+    source   str;
+    position uint;
+};
+
+function makeLexer(source str) returns (Lexer) {
+    return Lexer(source, 0);
+}
+
+function (l *Lexer) nextToken() returns (Token) {
+    while (true) {
+        var c char := l->currentChar();
+
+        if (isWhiteSpace(c)) {
+            l->advanceChar();
+        } else {
+            break;
+        }
+    }
+
+    var g char := l->currentChar();
+
+    if (isDigit(g)) {
+        var value int32 := 0;
+
+        while (true) {
+            value = value * 10 + (g as uint8 as int8 - '0' as uint8 as int8) as int32;
+            g = l->advanceChar();
+
+            if (!isDigit(g))
+                break;
+        }
+
+        return Token(IntegerToken(value));
+    }
+
+    switch (g) {
+    case '+':
+        return l->consumeOneCharacterPunctuator(Punctuator.Plus);
+    case '-':
+        return l->consumeOneCharacterPunctuator(Punctuator.Minus);
+    case '*':
+        return l->consumeOneCharacterPunctuator(Punctuator.Asterisk);
+    case '/':
+        return l->consumeOneCharacterPunctuator(Punctuator.Slash);
+    case '(':
+        return l->consumeOneCharacterPunctuator(Punctuator.Lparen);
+    case ')':
+        return l->consumeOneCharacterPunctuator(Punctuator.Rparen);
+    default:
+        skip;
+    }
+
+    return Token(ErrorToken());
+}
+
+function (l *Lexer) currentChar() returns (char) {
+    return l->source[l->position];
+}
+
+function (l *Lexer) peekChar() returns (char) {
+    return l->source[l->position + 1];
+}
+
+function (l *Lexer) advanceChar() returns (char) {
+    l->position = l->position + 1;
+    return l->currentChar();
+}
+
+function (l *Lexer) consumeOneCharacterPunctuator(value Punctuator) returns (Token) {
+    l->advanceChar();
+    return Token(PunctuatorToken(value));
+}
+
+
+/* Parser */
+
+struct Parser {
+    lexer *Lexer;
+    token Token;
+};
+
+function (p *Parser) currentToken() returns (*Token) {
+    return &p->token;
+}
+
+function (p *Parser) advanceToken() returns (*Token) {
+    p->token = p->lexer->nextToken();
+    return p->currentToken();
+}
+
+function (p *Parser) parse() returns (^Expr) {
+    p->advanceToken();
+    return p->parseExpr();
+}
+
+function (p *Parser) parseExpr() returns (^Expr) {
+    return p->parseAdditiveExpr();
+}
+
+function (p *Parser) parseAdditiveExpr() returns (^Expr) {
+    var left ^Expr := p->parseMultiplicative();
+
+    var token *Token := p->currentToken();
+
+    while (token->isPunctuator(Punctuator.Plus) || token->isPunctuator(Punctuator.Minus)) {
+        var op BinaryOp := token->toBinaryOp();
+        p->advanceToken();
+        var right ^Expr := p->parseMultiplicative();
+        left = new Expr(BinaryExpr(op, left, right));
+        token = p->currentToken();
+    }
+
+    return left;
+}
+
+function (p *Parser) parseMultiplicative() returns (^Expr) {
+    var left ^Expr := p->parseUnaryExpr();
+
+    var token *Token := p->currentToken();
+
+    while (token->isPunctuator(Punctuator.Asterisk) || token->isPunctuator(Punctuator.Slash)) {
+        var op BinaryOp := token->toBinaryOp();
+        p->advanceToken();
+        var right ^Expr := p->parseUnaryExpr();
+        left = new Expr(BinaryExpr(op, left, right));
+        token = p->currentToken();
+    }
+
+    return left;
+}
+
+function (p *Parser) parseUnaryExpr() returns (^Expr) {
+    var token *Token := p->currentToken();
+
+    if (token->isPunctuator(Punctuator.Plus) || token->isPunctuator(Punctuator.Minus)) {
+        var op UnaryOp := token->toUnaryOp();
+        p->advanceToken();
+        var operand ^Expr := p->parseUnaryExpr();
+        return new Expr(UnaryExpr(op, operand));
+    }
+
+    return p->parsePrimaryExpr();
+}
+
+function (p *Parser) parsePrimaryExpr() returns (^Expr) {
+    var token *Token := p->currentToken();
+
+    if (*token is IntegerToken) {
+        var value int32 := token->(IntegerToken).value;
+        p->advanceToken();
+        return new Expr(IntLiteralExpr(value));
+    }
+
+    if (token->isPunctuator(Punctuator.Lparen)) {
+        p->advanceToken();
+        var expr ^Expr := p->parseExpr();
+
+        if (!p->currentToken()->isPunctuator(Punctuator.Rparen)) {
+            // TODO
+        }
+
+        p->advanceToken();
+
+        return expr;
+    }
+
+    if (*token is ErrorToken) {
+        p->advanceToken();
+        return new Expr(IntLiteralExpr(101));
+    }
+
+    return null;
+}
+
+
+/* Expressions */
+
+variant Expr {
+    UnaryExpr,
+    BinaryExpr,
+    IntLiteralExpr
+};
+
+enum UnaryOp {
+    Plus,
+    Minus
+};
+
+struct UnaryExpr {
+    op      UnaryOp;
+    operand ^Expr;
+};
+
+enum BinaryOp {
+    Add,
+    Sub,
+    Mul,
+    Div
+};
+
+struct BinaryExpr {
+    op    BinaryOp;
+    left  ^Expr;
+    right ^Expr;
+};
+
+struct IntLiteralExpr {
+    value int32;
+};
+
+function (e *Expr) evaluate() returns (int32) {
+    switch (*e) {
+    case IntLiteralExpr: {
+        return e->(IntLiteralExpr).value;
+    }
+    case UnaryExpr: {
+        var operand int32 := e->(UnaryExpr).operand->evaluate();
+
+        switch (e->(UnaryExpr).op) {
+        case UnaryOp.Plus:
+            return operand;
+        case UnaryOp.Minus:
+            return -operand;
+        }
+    }
+    case BinaryExpr: {
+        var left int32 := e->(BinaryExpr).left->evaluate();
+        var right int32 := e->(BinaryExpr).right->evaluate();
+
+        switch (e->(BinaryExpr).op) {
+        case BinaryOp.Add:
+            return left + right;
+        case BinaryOp.Sub:
+            return left - right;
+        case BinaryOp.Mul:
+            return left * right;
+        case BinaryOp.Div:
+            return left / right;
+        }
+    }
+    }
+}
+
+
+/* main */
+
+function main([*]str) returns (int32) {
+    var source str := "(41 + -1) * 2";
+
+    var lexer Lexer := makeLexer(source);
+    var parser Parser := Parser(&lexer, Token(ErrorToken()));
+
+    var expr ^Expr := parser.parse();
+
+    print(expr->evaluate());
+    print('\n');
+    return 0;
+}

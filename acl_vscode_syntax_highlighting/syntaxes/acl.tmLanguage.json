@@ -1,0 +1,104 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "ACL",
+  "scopeName": "source.acl",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#strings" },
+    { "include": "#chars" },
+    { "include": "#numbers" },
+    { "include": "#declarations" },
+    { "include": "#keywords" },
+    { "include": "#types" },
+    { "include": "#constants" },
+    { "include": "#labels" },
+    { "include": "#calls" },
+    { "include": "#operators" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        { "name": "comment.line.double-slash.acl", "match": "//.*$" },
+        { "name": "comment.block.acl", "begin": "/\\*", "end": "\\*/" }
+      ]
+    },
+    "strings": {
+      "name": "string.quoted.double.acl",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [{ "name": "constant.character.escape.acl", "match": "\\\\." }]
+    },
+    "chars": {
+      "name": "string.quoted.single.acl",
+      "begin": "'",
+      "end": "'",
+      "patterns": [{ "name": "constant.character.escape.acl", "match": "\\\\." }]
+    },
+    "numbers": {
+      "patterns": [
+        { "name": "constant.numeric.hex.acl", "match": "\\b0[xX][0-9a-fA-F_]+\\b" },
+        { "name": "constant.numeric.binary.acl", "match": "\\b0[bB][01_]+\\b" },
+        { "name": "constant.numeric.decimal.acl", "match": "\\b[0-9][0-9_]*\\b" }
+      ]
+    },
+    "declarations": {
+      "patterns": [
+        {
+          "match": "\\b(struct|variant|enum|type)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": { "name": "keyword.declaration.acl" },
+            "2": { "name": "entity.name.type.acl" }
+          }
+        },
+        {
+          "match": "\\b(constant)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": { "name": "keyword.declaration.acl" },
+            "2": { "name": "variable.other.constant.acl" }
+          }
+        },
+        {
+          "match": "\\b(function)\\b(?:\\s*\\([^)]*\\))?\\s*(?:[A-Za-z_][A-Za-z0-9_]*\\s*\\.\\s*)?([A-Za-z_][A-Za-z0-9_]*)\\s*(?=\\()",
+          "captures": {
+            "1": { "name": "keyword.declaration.acl" },
+            "2": { "name": "entity.name.function.acl" }
+          }
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        { "name": "keyword.control.acl", "match": "\\b(if|else|for|while|switch|case|default|return|break|continue|skip)\\b" },
+        { "name": "keyword.control.import.acl", "match": "\\b(import)\\b" },
+        { "name": "storage.modifier.acl", "match": "\\b(extern)\\b" },
+        { "name": "keyword.declaration.acl", "match": "\\b(function|constant|struct|variant|enum|type|var|returns)\\b" },
+        { "name": "keyword.operator.word.acl", "match": "\\b(is|not|as|new)\\b" }
+      ]
+    },
+    "types": {
+      "name": "storage.type.primitive.acl",
+      "match": "\\b(bool|byte|char|int|int8|int16|int32|int64|uint|uint8|uint16|uint32|uint64)\\b"
+    },
+    "constants": {
+      "name": "constant.language.acl",
+      "match": "\\b(true|false|null)\\b"
+    },
+    "labels": {
+      "match": "^\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*:(?!=)",
+      "captures": { "1": { "name": "entity.name.label.acl" } }
+    },
+    "calls": {
+      "name": "entity.name.function.call.acl",
+      "match": "\\b[A-Za-z_][A-Za-z0-9_]*(?=\\s*\\()"
+    },
+    "operators": {
+      "patterns": [
+        { "name": "keyword.operator.assignment.acl", "match": ":=|=(?!=)" },
+        { "name": "keyword.operator.arrow.acl", "match": "->" },
+        { "name": "keyword.operator.comparison.acl", "match": "==|!=|<=|>=|<(?!<)|>(?!>)" },
+        { "name": "keyword.operator.logical.acl", "match": "&&|\\|\\||!" },
+        { "name": "keyword.operator.arithmetic.acl", "match": "<<|>>|[-+*/%&|^~]" }
+      ]
+    }
+  }
+}

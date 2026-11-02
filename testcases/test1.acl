@@ -1,0 +1,23 @@
+import "/usr/local/share/acl/lib/lib.acl";
+
+struct S {
+    x ^int32;
+};
+
+function boo() returns (bool) {
+    return true;
+}
+
+function main([*]str) returns (int32) {
+    var s ^S;
+
+    if (boo())
+        s := new S(new int32(0));
+    else
+        s := new S(new int32(1));
+
+    s = new S(new int32(42));
+    print(*s->x);
+    print('\n');
+    return 0;
+}

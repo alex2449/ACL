@@ -1,0 +1,8 @@
+X(RegisterValue)
+X(IntConstantValue)
+X(BoolConstantValue)
+X(CharConstantValue)
+X(EnumConstantValue)
+X(NullValue)
+X(SizeofValue)
+X(GlobalStringValue)

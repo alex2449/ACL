@@ -1,0 +1,21 @@
+{
+  "name": "acl-language",
+  "displayName": "ACL",
+  "description": "Syntax highlighting for the ACL programming language",
+  "version": "0.0.1",
+  "engines": { "vscode": "^1.60.0" },
+  "categories": ["Programming Languages"],
+  "contributes": {
+    "languages": [{
+      "id": "acl",
+      "aliases": ["ACL", "acl"],
+      "extensions": [".acl"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "acl",
+      "scopeName": "source.acl",
+      "path": "./syntaxes/acl.tmLanguage.json"
+    }]
+  }
+}

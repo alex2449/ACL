@@ -1,0 +1,5 @@
+extern function string.make() returns (string);
+extern function (s *string) take() returns (string);
+extern function (s *string) drop();
+extern function (s *string) push_back(c char);
+extern function (s *string) push_back(s_ str);

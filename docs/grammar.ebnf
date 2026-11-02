@@ -1,0 +1,95 @@
+SourceUnit ::= Import* SourceItem*
+
+Import ::= "import" StringLiteral ";"
+
+SourceItem ::= Function | Constant | Struct | Variant | Enum | TypeAlias
+
+Function ::= "extern" "function" ( "(" Parameter ")" )? ( TypeName "." )? Identifier "(" ParameterList ")" ( "returns" "(" ParameterList ")" )? ( BlockStmt | ";" )
+
+Constant ::= "constant" Identifier TypeName? [ ":=" Expression ] ";"
+
+ParameterList ::= ( Parameter ( "," Parameter)* )?
+Parameter ::= Identifier? TypeName
+
+Struct ::= "struct" Identifier "{" StructField* "}" ";"
+StructField ::= Identifier TypeName ";"
+
+Variant ::= "variant" Identifier "{" ( TypeName ( "," TypeName)* )? "}" ";"
+
+Enum ::= "enum" Identifier "{" Identifier ( "," Identifier )* "}" ";"
+
+TypeAlias ::= "type" Identifier "is" TypeName ";"
+
+TypeName ::= ElementaryTypeName
+           | PointerTypeName
+           | ArrayTypeName
+           | SliceTypeName
+           | IdentifierTypeName
+           | ParenthesizedTypeName
+ElementaryTypeName    ::= IntegerTypeName | "bool" | "byte" | "char"
+IntegerTypeName       ::= "int" | "int8" | "int16" | "int32" | "int64" | "uint" | "uint8" | "uint16" | "uint32" | "uint64"
+PointerTypeName       ::= ( "*" | "^" ) TypeName
+ArrayTypeName         ::= "[" Expr? "]" TypeName
+SliceTypeName         ::= "[" "*" "]" TypeName
+IdentifierTypeName    ::= Identifier
+ParenthesizedTypeName ::= "(" TypeName ")"
+
+Stmt ::= BlockStmt
+       | IfStmt
+       | ForStmt
+       | WhileStmt
+       | LabeledStmt
+       | SwitchStmt
+       | ReturnStmt
+       | ExprStmt
+       | VarDeclStmt
+       | SkipStmt
+       | BreakStmt
+       | ContinueStmt
+BlockStmt    ::= "{" Stmt* "}"
+IfStmt       ::= "if" "(" Expr ")" Stmt ( "else" Stmt )?
+ForStmt      ::= "for" "(" ( VarDeclStmt | ExprStmt | ";" ) Expr? ";" Expr? ")" Stmt
+WhileStmt    ::= "while" "( " Expr ")" Stmt
+LabeledStmt  ::= Identifier ":" Stmt
+SwitchStmt   ::= "switch" ( "(" Expr ")" )? "{" SwitchClause* "}"
+SwitchClause ::= ( ( "case" Expr ) | "default" ) ":" Stmt*
+ReturnStmt   ::= "return" Expr? ";"
+ExprStmt     ::= Expr ";"
+VarDeclStmt  ::= "var" Identifier TypeName? ( "," Identifier TypeName? )* ( ":=" Expr )? ";"
+SkipStmt     ::= "skip" ";"
+BreakStmt    ::= "break" Identifier? ";"
+ContinueStmt ::= "continue" Identifier? ";"
+
+Expr           ::= TypeTestExpr ( ( AssignmentOp | BinaryOp ) Expr )*
+TypeTestExpr   ::= CastExpr ( "is" ( "not" )? TypeName )*
+CastExpr       ::= UnaryExpr ( "as" TypeName )*
+UnaryExpr      ::= ( UnaryOp UnaryExpr ) | PostfixExpr
+CallArguments  ::= ( ( Identifier ":" )? Expr ( "," ( Identifier ":" )? Expr )* )?
+PostfixExpr    ::= PrimaryExpr ( "(" CallArguments ")" | "[" Expr "]" | ( "->" | "." ) ( Identifier | ( "(" TypeName ")") ) )*
+
+PrimaryExpr ::= IntLiteralExpr
+              | StringLiteralExpr
+              | CharLiteralExpr
+              | IdentifierExpr
+              | ParenExpr
+              | ListExpr
+              | CompositeLiteralExpr
+              | BoolLiteralExpr
+              | NewExpr
+              | TypeNameExpr
+              | NullExpr
+IntLiteralExpr       ::= IntLiteral
+StringLiteralExpr    ::= StringLiteral
+CharLiteralExpr      ::= CharLiteral
+IdentifierExpr       ::= Identifier
+ParenExpr            ::= "(" Expr ")"
+ListExpr             ::= "(" ( Expr ( "," Expr )* )? ")"
+CompositeLiteralExpr ::= "{" ( Expr ( "," Expr )* )? "}"
+BoolLiteralExpr      ::= "true" | "false"
+NewExpr              ::= "new" TypeName
+TypeNameExpr         ::= TypeName
+NullExpr             ::= "null"
+
+UnaryOp      ::= "+" | "-" | "*" | "&" | "!" | "~"
+BinaryOp     ::= "+" | "-" | "*" | "/" | "%" | "<" | "<=" | ">" | ">=" | "==" | "!=" | "&&" | "||" | "&" | "|" | "^" | "<<" | ">>"
+AssignmentOp ::= ":=" | "="

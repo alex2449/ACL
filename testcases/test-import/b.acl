@@ -1,0 +1,7 @@
+import "/usr/local/share/acl/lib/lib.acl";
+import "c.acl";
+
+function helloFromB() {
+    print("hello from b.acl\n");
+    helloFromC();
+}

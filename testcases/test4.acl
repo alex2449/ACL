@@ -1,0 +1,64 @@
+import "/usr/local/share/acl/lib/lib.acl";
+
+variant Expr {
+    BinaryExpr,
+    CallExpr,
+    IntLiteralExpr
+};
+
+enum BinaryOp {
+    Add,
+    Sub
+};
+
+function (op BinaryOp) toStr() returns (str) {
+    switch (op) {
+    case BinaryOp.Add: return "+";
+    case BinaryOp.Sub: return "-";
+    }
+}
+
+struct BinaryExpr {
+    op BinaryOp;
+    left ^Expr;
+    right ^Expr;
+};
+
+struct CallExpr {
+    func string;
+    args []Expr;
+};
+
+struct IntLiteralExpr {
+    value uint64;
+};
+
+function printExpr(e *Expr) {
+    switch (*e) {
+    case BinaryExpr: {
+        printExpr(e->(BinaryExpr).left);
+        print(e->(BinaryExpr).op.toStr());
+        printExpr(e->(BinaryExpr).right);
+    }
+    case CallExpr: {
+        print(e->(CallExpr).func);
+        print("(");
+        for (var i uint64 := 0; i < e->(CallExpr).args.length; i = i + 1) {
+            printExpr(&e->(CallExpr).args[i]);
+            if (i < e->(CallExpr).args.length - 1)
+                print(", ");
+        }
+        print(")");
+    }
+    case IntLiteralExpr: {
+        print(e->(IntLiteralExpr).value);
+    }
+    }
+}
+
+function main([*]str) returns (int32) {
+    var bin_expr := Expr(BinaryExpr(BinaryOp.Add, new Expr(IntLiteralExpr(42)), new Expr(IntLiteralExpr(17))));
+    var call_expr := Expr(CallExpr("f", {bin_expr}));
+    printExpr(&call_expr);
+    return 0;
+}

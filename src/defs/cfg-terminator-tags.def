@@ -1,0 +1,7 @@
+X(GotoTerm)
+X(IfTerm)
+X(ReturnTerm)
+X(SwitchTerm)
+X(VariantSwitchTerm)
+X(PanicTerm)
+X(CallTerm)

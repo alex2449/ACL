@@ -1,0 +1,15 @@
+extern function print(i int8);
+extern function print(i int16);
+extern function print(i int32);
+extern function print(i int64);
+extern function print(i uint8);
+extern function print(i uint16);
+extern function print(i uint32);
+extern function print(i uint64);
+extern function print(b bool);
+extern function print(c char);
+extern function print(s str);
+
+extern function exit(status int32);
+
+// type byte is uint8;

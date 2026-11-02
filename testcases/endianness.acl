@@ -1,0 +1,18 @@
+import "/usr/local/share/acl/lib/lib.acl";
+
+variant V {
+    [4]uint8,
+    uint32
+};
+
+function main([*]str) returns (int32) {
+    var v V := V({0, 0, 1, 0});
+
+    if (v.(uint32) == 65536) {
+        print("Little endian!\n");
+    } else {
+        print("Big endian!\n");
+    }
+
+    return 0;
+}

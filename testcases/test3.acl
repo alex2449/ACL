@@ -1,0 +1,27 @@
+import "/usr/local/share/acl/lib/lib.acl";
+
+function f(x [*]int32) returns (int32) {
+    var sum int32 := 0;
+
+    var i uint := 0;
+    while (true) {
+        sum = sum + x[i];
+
+        i = i + 1;
+        if (i == x.length)
+            break;
+    }
+
+    return sum;
+}
+
+function main([*]str) returns (int32) {
+    var q [3]int32 := {40, 1, 1};
+    var x int32 := f(q);
+
+    var y int32 := f({1, 1, 4, 4});
+
+    print(x + y);
+    print('\n');
+    return 0;
+}

@@ -1,0 +1,5 @@
+import "/usr/local/share/acl/lib/lib.acl";
+
+function helloFromC() {
+    print("hello from c.acl\n");
+}

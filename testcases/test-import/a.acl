@@ -1,0 +1,7 @@
+import "b.acl";
+
+function main([*]str) returns (int32) {
+    helloFromB();
+    // helloFromC();
+    return 0;
+}

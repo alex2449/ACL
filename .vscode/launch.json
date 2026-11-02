@@ -1,0 +1,23 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug acl",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/aclc",
+      "args": ["${workspaceFolder}/testcases/test.acl"],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "description": "Clear debuginfod URLs",
+          "text": "set debuginfod urls",
+          "ignoreFailures": true
+        },
+      ]
+    }
+  ]
+}

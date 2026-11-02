@@ -1,0 +1,74 @@
+import "/usr/local/share/acl/lib/lib.acl";
+
+variant Expr {
+    UnaryExpr,
+    BinaryExpr,
+    IntLiteralExpr
+};
+
+enum UnaryOp {
+    Plus,
+    Minus
+};
+
+struct UnaryExpr {
+    op      UnaryOp;
+    operand ^Expr;
+};
+
+enum BinaryOp {
+    Add,
+    Sub
+};
+
+struct BinaryExpr {
+    op    BinaryOp;
+    left  ^Expr;
+    right ^Expr;
+};
+
+struct IntLiteralExpr {
+    value int32;
+};
+
+function (e *Expr) evaluate() returns (int32) {
+    switch (*e) {
+    case IntLiteralExpr: {
+        return e->(IntLiteralExpr).value;
+    }
+    case UnaryExpr: {
+        var operand int32 := e->(UnaryExpr).operand->evaluate();
+
+        switch (e->(UnaryExpr).op) {
+        case UnaryOp.Plus:
+            return operand;
+        case UnaryOp.Minus:
+            return -operand;
+        }
+    }
+    case BinaryExpr: {
+        var left int32 := e->(BinaryExpr).left->evaluate();
+        var right int32 := e->(BinaryExpr).right->evaluate();
+
+        switch (e->(BinaryExpr).op) {
+        case BinaryOp.Add:
+            return left + right;
+        case BinaryOp.Sub:
+            return left - right;
+        }
+    }
+    }
+}
+
+function makeExpr() returns (^Expr) {
+    var left ^Expr := new Expr(UnaryExpr(UnaryOp.Minus, new Expr(IntLiteralExpr(42))));
+    var right ^Expr := new Expr(IntLiteralExpr(84));
+    return new Expr(BinaryExpr(BinaryOp.Add, left, right));
+}
+
+function main([*]str) returns (int32) {
+    var e ^Expr := makeExpr();
+    print(e->evaluate());
+    print('\n');
+    return 0;
+}

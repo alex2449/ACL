@@ -1,0 +1,61 @@
+#pragma once
+
+struct SourceUnit;
+
+struct Function;
+struct Parameter;
+struct Variable;
+struct Struct;
+struct StructField;
+struct Variant;
+struct VariantAlternative;
+struct Enum;
+struct EnumValue;
+struct TypeAlias;
+struct Property;
+
+struct TypeName;
+struct ElementaryTypeName;
+struct PointerTypeName;
+struct ArrayTypeName;
+struct SliceTypeName;
+struct IdentifierTypeName;
+struct ParenthesizedTypeName;
+
+struct Stmt;
+struct BlockStmt;
+struct IfStmt;
+struct ForStmt;
+struct WhileStmt;
+struct LabeledStmt;
+struct SwitchStmt;
+struct SwitchClause;
+struct FallthroughStmt;
+struct ExprStmt;
+struct SkipStmt;
+struct BreakStmt;
+struct ContinueStmt;
+struct VarDeclStmt;
+struct ReturnStmt;
+
+struct Expr;
+struct AssignmentExpr;
+struct UnaryExpr;
+struct BinaryExpr;
+struct CallExpr;
+struct IndexAccessExpr;
+struct MemberAccessExpr;
+struct VariantAccessExpr;
+struct TypeTestExpr;
+struct TypeCastExpr;
+struct IdentifierExpr;
+struct ParenExpr;
+struct ListExpr;
+struct CompositeLiteralExpr;
+struct NewExpr;
+struct TypeNameExpr;
+struct IntLiteralExpr;
+struct BoolLiteralExpr;
+struct NullExpr;
+struct StringLiteralExpr;
+struct CharLiteralExpr;

@@ -1,0 +1,6 @@
+X(ElementaryTypeName)
+X(PointerTypeName)
+X(ArrayTypeName)
+X(SliceTypeName)
+X(IdentifierTypeName)
+X(ParenthesizedTypeName)
